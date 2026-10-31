@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cyber Snake Game</title>
+<title>Cyber Snake Pro</title>
 
 <style>
 * {
@@ -14,77 +14,186 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: linear-gradient(135deg, #10102c, #202060);
-  color: white;
-  font-family: Arial, sans-serif;
+  padding: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  background: radial-gradient(circle at top, #25205b, #090916 75%);
+  color: white;
+  font-family: Arial, sans-serif;
 }
 
 .game {
   width: 100%;
-  max-width: 480px;
-  text-align: center;
-  background: #171735;
+  max-width: 470px;
   padding: 22px;
-  border: 1px solid #5555ff;
-  border-radius: 20px;
-  box-shadow: 0 0 30px #3434aa55;
+  background: #14142d;
+  border: 1px solid #6555ff;
+  border-radius: 22px;
+  box-shadow: 0 0 35px #5040ff35;
+  text-align: center;
 }
 
 h1 {
-  color: #8d7bff;
+  margin: 5px 0;
+  color: #a99cff;
+  text-shadow: 0 0 15px #8066ff;
+}
+
+.subtitle {
+  color: #aaa;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.stat {
+  flex: 1;
+  background: #222245;
+  padding: 10px 4px;
+  border-radius: 10px;
+  font-size: 12px;
+  color: #aaa;
+}
+
+.stat strong {
+  display: block;
+  font-size: 21px;
+  color: #00ffae;
   margin-top: 5px;
 }
 
-.score {
+.settings {
   display: flex;
   justify-content: space-between;
-  margin: 15px 0;
-  font-size: 18px;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+select {
+  background: #29294c;
+  color: white;
+  border: 1px solid #6555ff;
+  padding: 9px;
+  border-radius: 8px;
 }
 
 canvas {
+  display: block;
   width: 100%;
   max-width: 400px;
+  height: auto;
+  margin: auto;
   background: #080817;
   border: 2px solid #6555ff;
-  border-radius: 10px;
+  border-radius: 12px;
+}
+
+#message {
+  min-height: 24px;
+  color: #00ffae;
+  font-weight: bold;
+  margin: 15px 0;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 button {
   background: #6555ff;
   color: white;
   border: none;
-  padding: 12px 22px;
-  border-radius: 8px;
-  font-size: 16px;
+  padding: 12px 17px;
+  border-radius: 9px;
   cursor: pointer;
-  margin: 8px;
+  font-size: 14px;
+  font-weight: bold;
 }
 
 button:hover {
-  background: #8478ff;
+  background: #887aff;
+  transform: translateY(-1px);
+}
+
+#soundBtn {
+  background: #343454;
 }
 
 .controls {
-  margin-top: 12px;
   display: grid;
-  grid-template-columns: repeat(3, 55px);
+  grid-template-columns: repeat(3, 58px);
   justify-content: center;
-  gap: 5px;
+  gap: 6px;
+  margin-top: 18px;
 }
 
 .controls button {
-  margin: 0;
   padding: 12px;
+  font-size: 20px;
 }
 
-#message {
-  color: #00ff99;
-  min-height: 22px;
+.footer {
+  color: #777;
+  font-size: 12px;
+  margin-top: 18px;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: #000b;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  z-index: 5;
+}
+
+.overlay.show {
+  display: flex;
+}
+
+.modal {
+  background: #191936;
+  border: 1px solid #8066ff;
+  border-radius: 20px;
+  padding: 30px;
+  text-align: center;
+  width: 100%;
+  max-width: 330px;
+  animation: appear .3s ease;
+}
+
+.modal h2 {
+  color: #a99cff;
+  font-size: 27px;
+}
+
+.modal p {
+  color: #ccc;
+}
+
+@keyframes appear {
+  from {transform: scale(.7); opacity: 0;}
+  to {transform: scale(1); opacity: 1;}
+}
+
+@media(max-width:400px) {
+  .game {padding: 14px;}
+  .stat strong {font-size: 17px;}
+  button {padding: 11px 12px;}
 }
 </style>
 </head>
@@ -92,18 +201,40 @@ button:hover {
 <body>
 
 <div class="game">
-  <h1>🐍 Cyber Snake</h1>
 
-  <div class="score">
-    <span>Score: <b id="score">0</b></span>
-    <span>Best: <b id="best">0</b></span>
+  <h1>🐍 Cyber Snake Pro</h1>
+  <div class="subtitle">LEVEL 2 • ARCADE EDITION</div>
+
+  <div class="stats">
+    <div class="stat">
+      SCORE
+      <strong id="score">0</strong>
+    </div>
+    <div class="stat">
+      BEST
+      <strong id="best">0</strong>
+    </div>
+  </div>
+
+  <div class="settings">
+    <label for="difficulty">Difficulty</label>
+    <select id="difficulty">
+      <option value="180">Easy</option>
+      <option value="120" selected>Medium</option>
+      <option value="75">Hard</option>
+    </select>
+
+    <button id="soundBtn" onclick="toggleSound()">🔊 Sound ON</button>
   </div>
 
   <canvas id="board" width="400" height="400"></canvas>
 
-  <p id="message">Press Start to Play!</p>
+  <div id="message">Press Start to Play!</div>
 
-  <button onclick="startGame()">Start / Restart</button>
+  <div class="buttons">
+    <button onclick="startGame()">▶ Start / Restart</button>
+    <button onclick="pauseGame()" id="pauseBtn">⏸ Pause</button>
+  </div>
 
   <div class="controls">
     <span></span>
@@ -114,9 +245,19 @@ button:hover {
     <button onclick="changeDirection('RIGHT')">➡️</button>
   </div>
 
-  <p style="color:#aaa;font-size:13px">
-    Use Arrow Keys or Touch Buttons
-  </p>
+  <div class="footer">
+    Use Arrow Keys or Mobile Controls
+  </div>
+</div>
+
+<div class="overlay" id="gameOver">
+  <div class="modal">
+    <h2>💀 GAME OVER</h2>
+    <p>Your Score</p>
+    <h1 id="finalScore">0</h1>
+    <p id="resultMessage">Try Again!</p>
+    <button onclick="startGame()">🔄 Play Again</button>
+  </div>
 </div>
 
 <script>
@@ -124,19 +265,71 @@ const canvas = document.getElementById("board");
 const ctx = canvas.getContext("2d");
 
 const size = 20;
-const total = 400 / size;
+const total = 20;
 
-let snake;
-let food;
-let direction;
-let nextDirection;
+let snake = [];
+let food = {};
+let direction = "RIGHT";
+let nextDirection = "RIGHT";
+
 let score = 0;
-let running = false;
-let gameLoop;
+let best = Number(localStorage.getItem("cyberSnakeBest")) || 0;
 
-let best = Number(localStorage.getItem("snakeBest")) || 0;
+let running = false;
+let paused = false;
+let timer = null;
+let soundEnabled = true;
+let audioContext = null;
 
 document.getElementById("best").textContent = best;
+
+function playSound(frequency, duration = 0.1) {
+  if (!soundEnabled) return;
+
+  try {
+    const AudioContextClass =
+      window.AudioContext || window.webkitAudioContext;
+
+    if (!AudioContextClass) return;
+
+    if (!audioContext) {
+      audioContext = new AudioContextClass();
+    }
+
+    if (audioContext.state === "suspended") {
+      audioContext.resume();
+    }
+
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    oscillator.type = "sine";
+    oscillator.frequency.value = frequency;
+
+    gain.gain.setValueAtTime(0.08, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(
+      0.001,
+      audioContext.currentTime + duration
+    );
+
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + duration);
+  } catch (error) {
+    console.log("Audio unavailable");
+  }
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+
+  document.getElementById("soundBtn").textContent =
+    soundEnabled ? "🔊 Sound ON" : "🔇 Sound OFF";
+
+  if (soundEnabled) playSound(500);
+}
 
 function randomFood() {
   let position;
@@ -154,7 +347,7 @@ function randomFood() {
 }
 
 function startGame() {
-  clearInterval(gameLoop);
+  clearInterval(timer);
 
   snake = [
     {x: 10, y: 10},
@@ -166,17 +359,49 @@ function startGame() {
   nextDirection = "RIGHT";
   score = 0;
   running = true;
+  paused = false;
 
   food = randomFood();
 
   document.getElementById("score").textContent = score;
   document.getElementById("message").textContent = "Game Started!";
+  document.getElementById("pauseBtn").textContent = "⏸ Pause";
+  document.getElementById("gameOver").classList.remove("show");
 
   draw();
-  gameLoop = setInterval(update, 120);
+  startLoop();
+  playSound(500);
+}
+
+function startLoop() {
+  clearInterval(timer);
+
+  const speed = Number(
+    document.getElementById("difficulty").value
+  );
+
+  timer = setInterval(update, speed);
+}
+
+function pauseGame() {
+  if (!running) return;
+
+  paused = !paused;
+
+  if (paused) {
+    clearInterval(timer);
+    document.getElementById("pauseBtn").textContent = "▶ Resume";
+    document.getElementById("message").textContent = "Game Paused";
+  } else {
+    document.getElementById("pauseBtn").textContent = "⏸ Pause";
+    document.getElementById("message").textContent = "Keep Playing!";
+    startLoop();
+  }
 }
 
 function changeDirection(newDirection) {
+  if (!running || paused) return;
+
   const opposite = {
     UP: "DOWN",
     DOWN: "UP",
@@ -201,10 +426,15 @@ document.addEventListener("keydown", function(e) {
     e.preventDefault();
     changeDirection(keys[e.key]);
   }
+
+  if (e.code === "Space") {
+    e.preventDefault();
+    pauseGame();
+  }
 });
 
 function update() {
-  if (!running) return;
+  if (!running || paused) return;
 
   direction = nextDirection;
 
@@ -238,12 +468,17 @@ function update() {
 
   if (eating) {
     score += 10;
+
     document.getElementById("score").textContent = score;
+
+    playSound(750, 0.12);
 
     if (score > best) {
       best = score;
-      localStorage.setItem("snakeBest", best);
+      localStorage.setItem("cyberSnakeBest", best);
       document.getElementById("best").textContent = best;
+      document.getElementById("message").textContent =
+        "🏆 New High Score!";
     }
 
     food = randomFood();
@@ -258,8 +493,27 @@ function draw() {
   ctx.fillStyle = "#080817";
   ctx.fillRect(0, 0, 400, 400);
 
-  // Food
+  // Grid
+  ctx.strokeStyle = "#17172c";
+  ctx.lineWidth = 1;
+
+  for (let i = 0; i <= 400; i += size) {
+    ctx.beginPath();
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i, 400);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(0, i);
+    ctx.lineTo(400, i);
+    ctx.stroke();
+  }
+
+  // Food glow
+  ctx.shadowColor = "#ff3b70";
+  ctx.shadowBlur = 18;
   ctx.fillStyle = "#ff3b70";
+
   ctx.beginPath();
   ctx.arc(
     food.x * size + 10,
@@ -268,36 +522,63 @@ function draw() {
   );
   ctx.fill();
 
+  ctx.shadowBlur = 0;
+
   // Snake
   snake.forEach((part, index) => {
-    ctx.fillStyle = index === 0 ? "#00ff99" : "#00bb88";
-    ctx.fillRect(
-      part.x * size + 1,
-      part.y * size + 1,
-      size - 2,
-      size - 2
+    ctx.fillStyle = index === 0 ? "#00ffae" : "#00b987";
+    ctx.shadowColor = "#00ffae";
+    ctx.shadowBlur = index === 0 ? 14 : 4;
+
+    ctx.beginPath();
+    ctx.roundRect(
+      part.x * size + 2,
+      part.y * size + 2,
+      size - 4,
+      size - 4,
+      5
     );
+    ctx.fill();
   });
+
+  ctx.shadowBlur = 0;
 }
 
 function endGame() {
   running = false;
-  clearInterval(gameLoop);
+  clearInterval(timer);
+
+  playSound(180, 0.4);
 
   document.getElementById("message").textContent =
-    "Game Over! Your Score: " + score;
+    "Game Over!";
+
+  document.getElementById("finalScore").textContent = score;
+
+  document.getElementById("resultMessage").textContent =
+    score >= best && score > 0
+      ? "🏆 Amazing! You made a new record!"
+      : "💪 Try again and beat your best score!";
+
+  document.getElementById("gameOver").classList.add("show");
 }
 
-drawInitial();
+document.getElementById("difficulty").addEventListener(
+  "change",
+  function() {
+    if (running && !paused) {
+      startLoop();
+    }
+  }
+);
 
-function drawInitial() {
-  ctx.fillStyle = "#080817";
-  ctx.fillRect(0, 0, 400, 400);
-  ctx.fillStyle = "white";
-  ctx.font = "22px Arial";
-  ctx.textAlign = "center";
-  ctx.fillText("Press Start to Play", 200, 200);
-}
+// Initial screen
+ctx.fillStyle = "#080817";
+ctx.fillRect(0, 0, 400, 400);
+ctx.fillStyle = "#aaa";
+ctx.font = "20px Arial";
+ctx.textAlign = "center";
+ctx.fillText("Press Start to Play", 200, 200);
 </script>
 
 </body>
